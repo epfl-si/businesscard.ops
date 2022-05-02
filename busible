@@ -95,7 +95,7 @@ case "$mode" in
     ansible-playbook)
         ansible-playbook -vvv $playbook_flags $(inventories) "${ansible_args[@]}" \
                          -e "busible_cwd=$OLDPWD" \
-                         playbooks/main.yml
+                         playbook.yml
         ;;
     ansible)
         ansible $(inventories) $ansible_flags "${ansible_args[@]}"
