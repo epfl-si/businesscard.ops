@@ -1,0 +1,6 @@
+- name: preprod deployment
+  hosts: all
+  roles:
+    - name: ../roles/preprod
+  tags:
+    - preprod

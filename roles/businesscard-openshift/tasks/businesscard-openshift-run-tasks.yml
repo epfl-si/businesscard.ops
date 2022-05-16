@@ -1,0 +1,201 @@
+# Create the /opt/dinfo/etc/dbs.conf and
+# /var/www/vhosts/businesscard.epfl.ch/private/etc/access_conf secrets
+- name: "businesscard secrets"
+  openshift:
+    state: latest
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: businesscard-secrets
+      namespace: '{{ openshift_namespace }}'
+    type: Opaque
+    data:
+      dbs.conf: '{{ _dbs_conf | base64 }}'
+      # access_params: '{{ _access_params | base64 }}'
+  vars:
+    _dbs_conf: |
+      {% for k, el in keybase_secrets.cadi_dbs.items() %}
+      {{ k }}	{{ el.db_name }}	{{ el.db_host }}	{{ el.db_user }}	{{ el.db_pass }}
+      {% endfor %}
+    # _access_params: |
+    #    $sap_user = '{{ keybase_secrets.sap.user }}';
+    #    $sap_pwd  = '{{ keybase_secrets.sap.password }}';
+  tags:
+    - businesscard.dbs
+    - businesscard.secrets
+
+- name: Service
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftWebConsole
+        labels:
+          app: businesscard
+        name: businesscard-service
+        namespace: "{{ openshift_namespace }}"
+      spec:
+        ports:
+          - name: 8080-tcp
+            port: 8080
+            protocol: TCP
+            targetPort: 8080
+        selector:
+          deploymentconfig: businesscard
+        sessionAffinity: None
+        type: ClusterIP
+  tags:
+    - businesscard.service
+
+- name: Routes
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        labels:
+          app: businesscard
+        name: businesscard-route-{{ item }}
+        namespace: "{{ openshift_namespace }}"
+      spec:
+        host: "{{ item }}"
+        port:
+          targetPort: 8080-tcp
+        tls:
+          termination: edge
+        to:
+          kind: Service
+          name: businesscard-service
+          weight: 100
+        wildcardPolicy: None
+  with_items: "{{ businesscard_routes }}"
+
+  tags:
+    - businesscard.routes
+
+
+# https://docs.openshift.com/container-platform/3.11/dev_guide/deployments/how_deployments_work.html#creating-a-deployment-configuration
+- name: Deployment Config
+  openshift:
+    apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftWebConsole
+      labels:
+        app: businesscard
+      name: businesscard
+    spec:
+      replicas: 2
+      selector:
+        app: businesscard
+        deploymentconfig: businesscard
+      strategy:
+        activeDeadlineSeconds: 21600
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 500M
+          requests:
+            cpu: 1000m
+            memory: 500M
+        rollingParams:
+          intervalSeconds: 1
+          maxSurge: 25%
+          maxUnavailable: 25%
+          timeoutSeconds: 600
+          updatePeriodSeconds: 1
+        type: Rolling
+      template:
+        metadata:
+          annotations:
+            openshift.io/generated-by: OpenShiftWebConsole
+          creationTimestamp: null
+          labels:
+            app: businesscard
+            deploymentconfig: businesscard
+        spec:
+          containers:
+            - env:
+                - name: TEQUILA_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                      key: TEQUILA_HOST
+                      name: config
+                - name: MOCK_ORACLE
+                  valueFrom:
+                    configMapKeyRef:
+                      key: MOCK_ORACLE
+                      name: config
+                - name: SITE_URL
+                  valueFrom:
+                    configMapKeyRef:
+                      key: SITE_URL
+                      name: config
+                - name: E2EM_LINE
+                  valueFrom:
+                    configMapKeyRef:
+                      key: E2EM_LINE
+                      name: config
+              image: >-
+                "docker-registry.default.svc:5000/{{ openshift_namespace }}/{{ businesscard_image_name }}:{{ businesscard_image_tag }}"
+              imagePullPolicy: Always
+              name: businesscard
+              resources:
+                limits:
+                  cpu: 1000m
+                  memory: 500M
+                requests:
+                  cpu: 1000m
+                  memory: 500M
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+              volumeMounts:
+                - mountPath: /opt/dinfo/etc
+                  name: volume-7s8dg
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+          volumes:
+            - configMap:
+                defaultMode: 420
+                name: config
+              name: volume-7s8dg
+      test: false
+      triggers:
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - businesscard
+            from:
+              kind: ImageStreamTag
+              name: '{{ businesscard_image_name }}:{{ businesscard_image_tag }}'
+              namespace: "{{ openshift_namespace }}"
+          type: ImageChange
+        - type: ConfigChange
+
+  register: _businesscard_deploymentconfig
+  tags:
+    - businesscard.dc
+    - businesscard.deploy
+    - businesscard.deploy.force
+    - businesscard.deploymentconfig
+
+- name: "Redeploy businesscard now"
+  shell:
+    cmd: "oc -n {{ openshift_namespace }} rollout latest dc/businesscard"
+  register: "_redeploy"
+  when: >
+    _businesscard_deploymentconfig is changed
+    or
+    "businesscard.deploy.force" in ansible_run_tags
+  failed_when: >
+    _redeploy.rc != 0 and "already in progress" not in _redeploy.stderr
+  tags:
+    - businesscard.deploy.force

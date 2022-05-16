@@ -1,0 +1,29 @@
+<VirtualHost *:8080>
+  ServerName {{ businesscard_hostname }}
+
+  PassEnv businesscard_ENVIRONMENT
+
+  ## Vhost docroot
+  DocumentRoot "/var/www/vhosts/{{ businesscard_vhost_dir }}/htdocs"
+
+  <Directory "/var/www/vhosts/{{ businesscard_vhost_dir }}/htdocs">
+    Require all granted
+  </Directory>
+
+  ## Directories, there should at least be a declaration for /var/www/vhosts/{{ businesscard_vhost_dir }}/htdocs
+  <Directory "/var/www/vhosts/{{ businesscard_vhost_dir }}/cgi-bin/">
+    Require all granted
+    Options +ExecCGI
+    AddHandler cgi-script .cgi
+  </Directory>
+  
+  ## Script alias directives
+  ScriptAlias /cgi-bin/ "/var/www/vhosts/{{ businesscard_vhost_dir }}/cgi-bin/"
+
+  ## Load additional static includes
+  # Include "/var/www/vhosts/{{ businesscard_vhost_dir }}/conf/*.conf"
+
+  ## Server aliases
+  ServerAlias ""{{ businesscard_hostname.split('.')[0] }}"
+  ServerAlias "{{ businesscard_hostname }}"
+</VirtualHost>
