@@ -83,35 +83,37 @@
 
 
 
-# - name: Config Map
-#   community.kubernetes.k8s:
-#     state: present
-#     definition:
-#       apiVersion: v1
-#       kind: ConfigMap
-#       metadata:
-#         name: businesscard-conf
-#         namespace: "{{ openshift_namespace }}"
-#       data:
-#         SITE_URL: "{{ businesscard_hostname }}"
-#         TEQUILA_HOST: "{{ tequila_hostname }}"
-#         BUSINESSCARD_APACHE_CONF: "{{ lookup('template', 'businesscard-apache-conf.j2') }}"
-#         BUSINESSCARD_ENVIRONMENT: "{{ inventory_environment }}"
-#   tags:
-#     - businesscard.config
-#     - businesscard.cm
-#
-# - name: Promote {{ businesscard_image_name }} image to production
-#   when:
-#     - >-
-#       businesscard_build_openshift_namespace != openshift_namespace
-#     - >-
-#       "businesscard.promote" in ansible_run_tags
-#   shell:
-#     cmd: |
-#       oc tag {{ businesscard_build_openshift_namespace }}/{{ businesscard_image_name }}:preprod {{ openshift_namespace }}/{{ businesscard_image_name }}:{{ businesscard_image_tag }}
-#   tags:
-#     - businesscard.promote
+- name: Config Map
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: businesscard-conf
+        namespace: "{{ openshift_namespace }}"
+      data:
+        SITE_URL: "{{ businesscard_hostname }}"
+        TEQUILA_HOST: "{{ tequila_hostname }}"
+        # TEQUILA_FINGERPRINT: "{{ tequila_hostname }}"
+        # MOCK_ORACLE: "{{ tequila_hostname }}"
+        BUSINESSCARD_APACHE_CONF: "{{ lookup('template', 'businesscard-apache-conf.j2') }}"
+        BUSINESSCARD_ENVIRONMENT: "{{ inventory_environment }}"
+  tags:
+    - businesscard.config
+    - businesscard.cm
+
+- name: Promote {{ businesscard_image_name }} image to production
+  when:
+    - >-
+      businesscard_build_openshift_namespace != openshift_namespace
+    - >-
+      "businesscard.promote" in ansible_run_tags
+  shell:
+    cmd: |
+      oc tag {{ businesscard_build_openshift_namespace }}/{{ businesscard_image_name }}:preprod {{ openshift_namespace }}/{{ businesscard_image_name }}:{{ businesscard_image_tag }}
+  tags:
+    - businesscard.promote
 
 
 
