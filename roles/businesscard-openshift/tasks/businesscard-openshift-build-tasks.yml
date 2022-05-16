@@ -27,6 +27,7 @@
   tags:
     - businesscard.checkouter
 
+# docker-registry.default.svc:5000/businesscard-preprod/businesscard:develop
 # Build a businesscard image from cadi-base image and tag
 # it. Use os-docker-registry.epfl.ch/businesscard-test/businesscard:preprod
 # to get it.
@@ -57,6 +58,9 @@
     - businesscard.is
     - businesscard.image
     - businesscard.imagestream
+
+
+
 
 - name: "Rebuild {{ businesscard_image_name }} now"
   shell:

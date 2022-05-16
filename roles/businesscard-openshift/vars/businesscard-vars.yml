@@ -29,11 +29,13 @@ tequila_hostname: >-
       else "test-tequila.epfl.ch" if inventory_environment == "test"
       else "localhost" }}
 
-_docker_openshift_repository: docker-registry.default.svc:5000
+# docker-registry.default.svc
+# os-docker-registry.epfl.ch
+_docker_openshift_repository: docker-registry.default.svc
 _cadi_base_image_name: cadi-libs-idevfsd
 _cadi_base_image_tag: latest
 cadi_base_image_uri: >-
-  {{ _docker_openshift_repository }}/dinfo-cicd/{{ _cadi_base_image_name }}:{{ _cadi_base_image_tag }}
+  docker-registry.default.svc:5000/dinfo-cicd/cadi-libs-idevfsd
 
 businesscard_image_name: businesscard
 businesscard_image_tag: >-
@@ -48,3 +50,4 @@ dinfo_build_c4science_credentials: >-
   {{ _dinfo_keybase_build_secrets.c4science_clone_credentials }}
 dinfo_build_cadi_libs_ssh_secret_key_path: "{{ dinfo_build_keybase_dir }}/id_rsa_c4science_idevfsd-checkouter"
 dinfo_build_cadi_libs_ssh_known_hosts_cmd: "ssh-keyscan c4science.ch"
+businesscard_git_branch: "saphirevert/test"

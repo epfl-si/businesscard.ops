@@ -24,6 +24,8 @@
     - businesscard.dbs
     - businesscard.secrets
 
+
+
 - name: Service
   community.kubernetes.k8s:
     state: present
@@ -49,6 +51,8 @@
         type: ClusterIP
   tags:
     - businesscard.service
+
+
 
 - name: Routes
   community.kubernetes.k8s:
@@ -78,114 +82,109 @@
     - businesscard.routes
 
 
+
+# - name: Config Map
+#   community.kubernetes.k8s:
+#     state: present
+#     definition:
+#       apiVersion: v1
+#       kind: ConfigMap
+#       metadata:
+#         name: businesscard-conf
+#         namespace: "{{ openshift_namespace }}"
+#       data:
+#         SITE_URL: "{{ businesscard_hostname }}"
+#         TEQUILA_HOST: "{{ tequila_hostname }}"
+#         BUSINESSCARD_APACHE_CONF: "{{ lookup('template', 'businesscard-apache-conf.j2') }}"
+#         BUSINESSCARD_ENVIRONMENT: "{{ inventory_environment }}"
+#   tags:
+#     - businesscard.config
+#     - businesscard.cm
+#
+# - name: Promote {{ businesscard_image_name }} image to production
+#   when:
+#     - >-
+#       businesscard_build_openshift_namespace != openshift_namespace
+#     - >-
+#       "businesscard.promote" in ansible_run_tags
+#   shell:
+#     cmd: |
+#       oc tag {{ businesscard_build_openshift_namespace }}/{{ businesscard_image_name }}:preprod {{ openshift_namespace }}/{{ businesscard_image_name }}:{{ businesscard_image_tag }}
+#   tags:
+#     - businesscard.promote
+
+
+
 # https://docs.openshift.com/container-platform/3.11/dev_guide/deployments/how_deployments_work.html#creating-a-deployment-configuration
 - name: Deployment Config
   openshift:
     apiVersion: apps.openshift.io/v1
     kind: DeploymentConfig
     metadata:
-      annotations:
-        openshift.io/generated-by: OpenShiftWebConsole
+      name: businesscard
+      namespace: "{{ openshift_namespace }}"
       labels:
         app: businesscard
-      name: businesscard
     spec:
-      replicas: 2
+      replicas: 1
       selector:
         app: businesscard
         deploymentconfig: businesscard
-      strategy:
-        activeDeadlineSeconds: 21600
-        resources:
-          limits:
-            cpu: 1000m
-            memory: 500M
-          requests:
-            cpu: 1000m
-            memory: 500M
-        rollingParams:
-          intervalSeconds: 1
-          maxSurge: 25%
-          maxUnavailable: 25%
-          timeoutSeconds: 600
-          updatePeriodSeconds: 1
-        type: Rolling
       template:
         metadata:
-          annotations:
-            openshift.io/generated-by: OpenShiftWebConsole
-          creationTimestamp: null
           labels:
             app: businesscard
             deploymentconfig: businesscard
         spec:
           containers:
-            - env:
-                - name: TEQUILA_HOST
-                  valueFrom:
-                    configMapKeyRef:
-                      key: TEQUILA_HOST
-                      name: config
-                - name: MOCK_ORACLE
-                  valueFrom:
-                    configMapKeyRef:
-                      key: MOCK_ORACLE
-                      name: config
-                - name: SITE_URL
-                  valueFrom:
-                    configMapKeyRef:
-                      key: SITE_URL
-                      name: config
-                - name: E2EM_LINE
-                  valueFrom:
-                    configMapKeyRef:
-                      key: E2EM_LINE
-                      name: config
-              image: >-
-                "docker-registry.default.svc:5000/{{ openshift_namespace }}/{{ businesscard_image_name }}:{{ businesscard_image_tag }}"
+            - name: businesscard
+              image: "docker-registry.default.svc:5000/{{ openshift_namespace }}/{{ businesscard_image_name }}:{{ businesscard_image_tag }}"
+              ports:
+                - containerPort: 8080
+                  protocol: "TCP"
               imagePullPolicy: Always
-              name: businesscard
-              resources:
-                limits:
-                  cpu: 1000m
-                  memory: 500M
-                requests:
-                  cpu: 1000m
-                  memory: 500M
-              terminationMessagePath: /dev/termination-log
-              terminationMessagePolicy: File
               volumeMounts:
-                - mountPath: /opt/dinfo/etc
-                  name: volume-7s8dg
-          dnsPolicy: ClusterFirst
-          restartPolicy: Always
-          schedulerName: default-scheduler
-          securityContext: {}
-          terminationGracePeriodSeconds: 30
+                - name: businesscard-apache-conf-volume
+                  mountPath: /usr/local/apache2/conf/25-businesscard.epfl.ch.conf
+                  subPath: 25-businesscard.epfl.ch.conf
+                - name: businesscard-secrets
+                  mountPath: /opt/dinfo/etc/dbs.conf
+                  subPath: dbs.conf
+                - name: businesscard-secrets
+                  mountPath: "/var/www/vhosts/{{ businesscard_vhost_dir }}/private/etc/access_params"
+                  subPath: access_params
+              envFrom:
+                - configMapRef:
+                    name: businesscard-conf
           volumes:
-            - configMap:
-                defaultMode: 420
-                name: config
-              name: volume-7s8dg
-      test: false
+            - name: businesscard-apache-conf-volume
+              configMap:
+                name: businesscard-conf
+                items:
+                  - key: BUSINESSCARD_APACHE_CONF
+                    path: 25-businesscard.epfl.ch.conf
+            - name: businesscard-secrets
+              secret:
+                secretName: businesscard-secrets
       triggers:
-        - imageChangeParams:
+        - type: ImageChange
+          imageChangeParams:
             automatic: true
             containerNames:
               - businesscard
             from:
               kind: ImageStreamTag
-              name: '{{ businesscard_image_name }}:{{ businesscard_image_tag }}'
+              name: "{{ businesscard_image_name }}:{{ businesscard_image_tag }}"
               namespace: "{{ openshift_namespace }}"
-          type: ImageChange
         - type: ConfigChange
-
   register: _businesscard_deploymentconfig
   tags:
     - businesscard.dc
     - businesscard.deploy
     - businesscard.deploy.force
     - businesscard.deploymentconfig
+
+
 
 - name: "Redeploy businesscard now"
   shell:
