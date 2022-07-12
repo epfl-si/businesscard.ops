@@ -1,7 +1,18 @@
 FROM {{ cadi_base_image_uri }}
 
-# Install perl dependencies needed for businesscard
-# RUN cpanm utf8::all HTML::Template JSON::SL XML::LibXML Net::CIDR LWP::Protocol::https
+USER root
+RUN apt update
+# RUN apt-get install -y locate
+# RUN locate .ssh
+RUN ls -al
+RUN chown -R dinfo:dinfo /usr/local/apache2
+# Create the vhosts directory
+RUN mkdir -p /var/www/vhosts/
+RUN chown -R dinfo:dinfo /var/www/vhosts
+# USER dinfo
+
+
+# RUN ls -al /home/dinfo/
 
 # Enable apache modules. `headers` and `env` modules are enabled by default.
 # Make apache listen on port 8080
@@ -17,8 +28,6 @@ RUN sed -i \
 RUN echo "Include conf/25-businesscard.epfl.ch.conf" \
         >> /usr/local/apache2/conf/httpd.conf
 
-# Create the vhosts directory
-RUN mkdir -p /var/www/vhosts/
 
 # Copy the SSH private key for the idevfsd-checkouter (c4science), in order
 # to be able to git clone a private repo in /var/www/vhosts/businesscard.epfl.ch.
