@@ -26,6 +26,54 @@
       businesscard_build_openshift_namespace == openshift_namespace
   tags:
     - businesscard.checkouter
+    - businesscard.secrets
+
+- name: "`{{ businesscard_base_image_pull_secret_name }}` Secret"
+  openshift:
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: "{{ businesscard_base_image_pull_secret_name }}"
+      namespace: '{{ openshift_namespace }}'
+    type: kubernetes.io/dockerconfigjson
+    data:
+      .dockerconfigjson: >-
+        {{ _docker_config | to_json | b64encode | trim }}
+  vars:
+    _username: epfl-si  # This is actually ignored by GitHub
+    _password: "{{ keybase_secrets.common_libs_github_registry_token }}"
+    _email: isas-fsd@groupes.epfl.ch
+    # Reverse engineered from reading the Secret created with the instructions
+    # from https://docs.openshift.com/container-platform/3.11/dev_guide/managing_images.html#allowing-pods-to-reference-images-from-other-secured-registries
+    _docker_config:
+      auths:
+        ghcr.io:
+          username: "{{ _username }}"
+          password: "{{ _password }}"
+          email: "{{ _email }}"
+          auth: >-
+            {{ ("%s:%s" % (_username, _password)) | b64encode }}
+  tags:
+    - businesscard.secrets
+
+- name: "Link `{{ businesscard_base_image_pull_secret_name }}` Secret to `builder` ServiceAccount`"
+  shell:
+    cmd: |
+      set -x
+      if oc get -o jsonpath='{.secrets}' serviceaccount/builder |grep "{{ businesscard_base_image_pull_secret_name }}"; then
+        echo "ALREADY_DONE"
+        exit 0
+      fi
+      oc secrets link builder {{ businesscard_base_image_pull_secret_name }}
+  register: _oc_secrets_link_cmd
+  changed_when: >-
+    (_oc_secrets_link_cmd is defined)
+    and
+    ("ALREADY_DONE" not in _oc_secrets_link_cmd.stdout)
+  tags:
+    - businesscard.is
+    - businesscard.image
+    - businesscard.imagestream
 
 # docker-registry.default.svc:5000/businesscard-preprod/businesscard:develop
 # Build a businesscard image from cadi-base image and tag

@@ -17,6 +17,8 @@ businesscard_routes: >-
       else ["businesscard-preprod.epfl.ch", "businesscard-preprod.epfl.ch"] if inventory_environment == "test"
       else "localhost" }}
 
+businesscard_base_image_pull_secret_name: github-package-common-libs-pull
+
 businesscard_vhost_dir: businesscard.epfl.ch
 
 businesscard_build_openshift_namespace: businesscard-test
