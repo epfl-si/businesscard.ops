@@ -97,7 +97,6 @@
         TEQUILA_HOST: "{{ tequila_hostname }}"
         # TEQUILA_FINGERPRINT: "{{ tequila_hostname }}"
         # MOCK_ORACLE: "{{ tequila_hostname }}"
-        BUSINESSCARD_APACHE_CONF: "{{ lookup('template', 'businesscard-apache-conf.j2') }}"
         BUSINESSCARD_ENVIRONMENT: "{{ inventory_environment }}"
   tags:
     - businesscard.config
@@ -146,9 +145,6 @@
                   protocol: "TCP"
               imagePullPolicy: Always
               volumeMounts:
-                - name: businesscard-apache-conf-volume
-                  mountPath: /usr/local/apache2/conf/25-businesscard.epfl.ch.conf
-                  subPath: 25-businesscard.epfl.ch.conf
                 - name: businesscard-secrets
                   mountPath: /opt/dinfo/etc/dbs.conf
                   subPath: dbs.conf
@@ -159,12 +155,6 @@
                 - configMapRef:
                     name: businesscard-conf
           volumes:
-            - name: businesscard-apache-conf-volume
-              configMap:
-                name: businesscard-conf
-                items:
-                  - key: BUSINESSCARD_APACHE_CONF
-                    path: 25-businesscard.epfl.ch.conf
             - name: businesscard-secrets
               secret:
                 secretName: businesscard-secrets
