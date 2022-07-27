@@ -11,15 +11,11 @@
     type: Opaque
     data:
       dbs.conf: '{{ _dbs_conf | base64 }}'
-      # access_params: '{{ _access_params | base64 }}'
   vars:
     _dbs_conf: |
       {% for k, el in keybase_secrets.cadi_dbs.items() %}
       {{ k }}	{{ el.db_name }}	{{ el.db_host }}	{{ el.db_user }}	{{ el.db_pass }}
       {% endfor %}
-    # _access_params: |
-    #    $sap_user = '{{ keybase_secrets.sap.user }}';
-    #    $sap_pwd  = '{{ keybase_secrets.sap.password }}';
   tags:
     - businesscard.dbs
     - businesscard.secrets
@@ -95,8 +91,6 @@
       data:
         SITE_URL: "{{ businesscard_hostname }}"
         TEQUILA_HOST: "{{ tequila_hostname }}"
-        # TEQUILA_FINGERPRINT: "{{ tequila_hostname }}"
-        # MOCK_ORACLE: "{{ tequila_hostname }}"
         BUSINESSCARD_ENVIRONMENT: "{{ inventory_environment }}"
   tags:
     - businesscard.config
