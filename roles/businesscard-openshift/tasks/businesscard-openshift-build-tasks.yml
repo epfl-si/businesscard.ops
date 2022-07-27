@@ -79,24 +79,26 @@
 # Build a businesscard image from cadi-base image and tag
 # it. Use os-docker-registry.epfl.ch/businesscard-test/businesscard:preprod
 # to get it.
-- name: "Build {{ businesscard_image_name }} from cadi-base-image"
+- name: "`{{ businesscard_image_name }}` BuildConfig and ImageStream"
   openshift_imagestream:
     state: latest
     metadata:
       namespace: "{{ openshift_namespace }}"
       name: "{{ businesscard_image_name }}"
     source:
-      dockerfile: >-
-        {{ lookup('template', 'Dockerfile') }}
-      secrets:
-        - secret:
-            name: idevfsd-checkouter
-          destinationDir: ".ssh"
+      git:
+        uri: "{{ businesscard_git_repository }}"
+        ref: "{{ businesscard_git_branch }}"
+      sourceSecret:
+        name: idevfsd-checkouter
     strategy:
       dockerStrategy:
         # Squash the image, so that it doesn't contain the
         # idevfsd-checkouter ssh key in its intermediate layers:
         imageOptimizationPolicy: SkipLayers
+        # Pulling from ghcr.io requires a credential (see above):
+        pullSecret:
+          name: "{{ businesscard_base_image_pull_secret_name }}"
     tag: "{{ businesscard_image_tag }}"
   register: _businesscard_imagestream
   when:
@@ -106,9 +108,6 @@
     - businesscard.is
     - businesscard.image
     - businesscard.imagestream
-
-
-
 
 - name: "Rebuild {{ businesscard_image_name }} now"
   shell:
