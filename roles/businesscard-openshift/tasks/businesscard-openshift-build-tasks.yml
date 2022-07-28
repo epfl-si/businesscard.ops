@@ -30,3 +30,32 @@
     - businesscard.checkouter
     - businesscard.secrets
 
+- name: "`{{ businesscard_base_image_pull_secret_name }}` Secret"
+  openshift:
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: "{{ businesscard_base_image_pull_secret_name }}"
+      namespace: '{{ openshift_namespace }}'
+    type: kubernetes.io/dockerconfigjson
+    data:
+      .dockerconfigjson: >-
+        {{ _docker_config | to_json | b64encode | trim }}
+  vars:
+    _username: epfl-si  # This is actually ignored by GitHub
+    _password: "{{ keybase_secrets.common_libs_github_registry_token }}"
+    _email: isas-fsd@groupes.epfl.ch
+    # Reverse engineered from reading the Secret created with the instructions
+    # from https://docs.openshift.com/container-platform/3.11/dev_guide/managing_images.html#allowing-pods-to-reference-images-from-other-secured-registries
+    _docker_config:
+      auths:
+        ghcr.io:
+          username: "{{ _username }}"
+          password: "{{ _password }}"
+          email: "{{ _email }}"
+          auth: >-
+            {{ ("%s:%s" % (_username, _password)) | b64encode }}
+  tags:
+    - all
+    - all_build
+    - businesscard.secrets

@@ -1,3 +1,12 @@
+keybase_secrets: >-
+  {{       _keybase_secrets_prod    if inventory_environment == "prod"
+      else _keybase_secrets_preprod if inventory_environment == "test"
+      else None }}
+_keybase_secrets_prod: >-
+    {{ lookup('file', '/keybase/team/epfl_bsnscrd/secrets-prod.yml') | from_yaml }}
+_keybase_secrets_preprod: >-
+    {{ lookup('file', '/keybase/team/epfl_bsnscrd/secrets-test.yml') | from_yaml }}
+businesscard_base_image_pull_secret_name: github-package-common-libs-pull
 businesscard_build_openshift_namespace: businesscard-test
 _dinfo_build_keybase_dir: "/keybase/team/epfl_si.build_common"
 dinfo_build_cadi_libs_ssh_secret_key_path: "{{ _dinfo_build_keybase_dir }}/id_rsa_c4science_idevfsd-checkouter"
