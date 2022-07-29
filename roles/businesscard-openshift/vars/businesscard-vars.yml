@@ -7,7 +7,16 @@ _keybase_secrets_prod: >-
 _keybase_secrets_preprod: >-
     {{ lookup('file', '/keybase/team/epfl_bsnscrd/secrets-test.yml') | from_yaml }}
 businesscard_base_image_pull_secret_name: github-package-common-libs-pull
+
+businesscard_git_repository: ssh://git@c4science.ch/diffusion/9003/businesscard.git
+# Note that the `master` branch contains a Dockerfile, but we don't
+# want to use it (until this one is merged):
+businesscard_git_branch: feature/build-from-ghcr-io
 businesscard_build_openshift_namespace: businesscard-test
+businesscard_image_name: businesscard
+businesscard_image_tag: >-
+    {{ "prod" if inventory_environment == "prod" else "develop" }}
+    
 _dinfo_build_keybase_dir: "/keybase/team/epfl_si.build_common"
 dinfo_build_cadi_libs_ssh_secret_key_path: "{{ _dinfo_build_keybase_dir }}/id_rsa_c4science_idevfsd-checkouter"
 dinfo_build_cadi_libs_ssh_known_hosts_cmd: "ssh-keyscan c4science.ch"
