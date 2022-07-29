@@ -84,3 +84,22 @@
     - businesscard.routes
 
 
+
+- name: Config Map
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: businesscard-conf
+        namespace: "{{ openshift_namespace }}"
+      data:
+        SITE_URL: "{{ businesscard_hostname }}"
+        TEQUILA_HOST: "{{ tequila_hostname }}"
+        BUSINESSCARD_ENVIRONMENT: "{{ inventory_environment }}"
+  tags:
+    - all
+    - all_run
+    - businesscard.config
+    - businesscard.cm

@@ -7,6 +7,11 @@ _keybase_secrets_prod: >-
 _keybase_secrets_preprod: >-
     {{ lookup('file', '/keybase/team/epfl_bsnscrd/secrets-test.yml') | from_yaml }}
 
+businesscard_hostname: >-
+  {{ "businesscard.epfl.ch" if inventory_environment == "prod"
+      else "businesscard-preprod.epfl.ch" if inventory_environment == "test"
+      else "localhost" }}
+
 businesscard_routes: >-
   {{ ["businesscard.epfl.ch"] if inventory_environment == "prod"
       else ["businesscard-preprod.epfl.ch", "businesscard-preprod.epfl.ch"] if inventory_environment == "test"
@@ -19,6 +24,11 @@ businesscard_git_repository: ssh://git@c4science.ch/diffusion/9003/businesscard.
 # want to use it (until this one is merged):
 businesscard_git_branch: feature/build-from-ghcr-io
 businesscard_build_openshift_namespace: businesscard-test
+tequila_hostname: >-
+  {{ "tequila.epfl.ch" if inventory_environment == "prod"
+      else "test-tequila.epfl.ch" if inventory_environment == "test"
+      else "localhost" }}
+
 businesscard_image_name: businesscard
 businesscard_image_tag: >-
     {{ "prod" if inventory_environment == "prod" else "develop" }}
