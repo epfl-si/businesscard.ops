@@ -116,3 +116,39 @@
     - businesscard.is
     - businesscard.image
     - businesscard.imagestream
+
+- name: "Rebuild {{ businesscard_image_name }} now"
+  shell:
+    cmd: "oc -n {{ openshift_namespace }} start-build --wait businesscard"
+  register: "_build_id"
+  when:
+    - >
+      (
+        _businesscard_imagestream | default(False)
+        and
+        (_businesscard_imagestream is changed)
+      )
+      or
+      "businesscard.build" in ansible_run_tags
+    - >-
+      businesscard_build_openshift_namespace == openshift_namespace
+  tags:
+    - all
+    - all_build
+    - businesscard.build
+
+- debug:
+    msg:
+      - "You can follow the build logs with: "
+      - "oc logs -f bc/businesscard --version={{ _build_id.stdout | regex_search('\\d+') }} -n {{ openshift_namespace }}"
+  when:
+    - >
+      "stdout" in _build_id
+      or
+      "businesscard.build" in ansible_run_tags
+    - >-
+      businesscard_build_openshift_namespace == openshift_namespace
+  tags:
+    - all
+    - all_build
+    - businesscard.build
