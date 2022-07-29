@@ -1,0 +1,24 @@
+# Create the /opt/dinfo/etc/dbs.conf and
+# /var/www/vhosts/businesscard.epfl.ch/private/etc/access_conf secrets
+- name: "businesscard secrets"
+  openshift:
+    state: latest
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: businesscard-secrets
+      namespace: '{{ openshift_namespace }}'
+    type: Opaque
+    data:
+      dbs.conf: '{{ _dbs_conf | base64 }}'
+  vars:
+    _dbs_conf: |
+      {% for k, el in keybase_secrets.cadi_dbs.items() %}
+      {{ k }}	{{ el.db_name }}	{{ el.db_host }}	{{ el.db_user }}	{{ el.db_pass }}
+      {% endfor %}
+  tags:
+    - all
+    - all_run
+    - businesscard.dbs
+    - businesscard.secrets
+

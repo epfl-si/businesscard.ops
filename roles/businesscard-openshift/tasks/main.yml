@@ -7,3 +7,10 @@
       tags:
         - businesscard.openshift-build
   tags: always
+
+- include_tasks:
+    file: businesscard-openshift-run-tasks.yml
+    apply:
+      tags:
+        - businesscard.openshift-run
+  tags: always
