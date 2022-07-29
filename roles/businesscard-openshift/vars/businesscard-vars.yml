@@ -23,6 +23,9 @@ businesscard_git_repository: ssh://git@c4science.ch/diffusion/9003/businesscard.
 # Note that the `master` branch contains a Dockerfile, but we don't
 # want to use it (until this one is merged):
 businesscard_git_branch: feature/build-from-ghcr-io
+
+businesscard_vhost_dir: businesscard.epfl.ch
+
 businesscard_build_openshift_namespace: businesscard-test
 tequila_hostname: >-
   {{ "tequila.epfl.ch" if inventory_environment == "prod"

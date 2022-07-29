@@ -117,3 +117,67 @@
     - all
     - all_run
     - businesscard.promote
+
+
+
+# https://docs.openshift.com/container-platform/3.11/dev_guide/deployments/how_deployments_work.html#creating-a-deployment-configuration
+- name: Deployment Config
+  openshift:
+    apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      name: businesscard
+      namespace: "{{ openshift_namespace }}"
+      labels:
+        app: businesscard
+    spec:
+      replicas: 1
+      selector:
+        app: businesscard
+        deploymentconfig: businesscard
+      template:
+        metadata:
+          labels:
+            app: businesscard
+            deploymentconfig: businesscard
+        spec:
+          containers:
+            - name: businesscard
+              image: "docker-registry.default.svc:5000/{{ openshift_namespace }}/{{ businesscard_image_name }}:{{ businesscard_image_tag }}"
+              ports:
+                - containerPort: 8080
+                  protocol: "TCP"
+              imagePullPolicy: Always
+              volumeMounts:
+                - name: businesscard-secrets
+                  mountPath: /opt/dinfo/etc/dbs.conf
+                  subPath: dbs.conf
+                - name: businesscard-secrets
+                  mountPath: "/var/www/vhosts/{{ businesscard_vhost_dir }}/private/etc/access_params"
+                  subPath: access_params
+              envFrom:
+                - configMapRef:
+                    name: businesscard-conf
+          volumes:
+            - name: businesscard-secrets
+              secret:
+                secretName: businesscard-secrets
+      triggers:
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - businesscard
+            from:
+              kind: ImageStreamTag
+              name: "{{ businesscard_image_name }}:{{ businesscard_image_tag }}"
+              namespace: "{{ openshift_namespace }}"
+        - type: ConfigChange
+  register: _businesscard_deploymentconfig
+  tags:
+    - all
+    - all_run
+    - businesscard.dc
+    - businesscard.deploy
+    - businesscard.deploy.force
+    - businesscard.deploymentconfig
