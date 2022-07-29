@@ -103,3 +103,17 @@
     - all_run
     - businesscard.config
     - businesscard.cm
+
+- name: Promote {{ businesscard_image_name }} image to production
+  when:
+    - >-
+      businesscard_build_openshift_namespace != openshift_namespace
+    - >-
+      "businesscard.promote" in ansible_run_tags
+  shell:
+    cmd: |
+      oc tag {{ businesscard_build_openshift_namespace }}/{{ businesscard_image_name }}:preprod {{ openshift_namespace }}/{{ businesscard_image_name }}:{{ businesscard_image_tag }}
+  tags:
+    - all
+    - all_run
+    - businesscard.promote
