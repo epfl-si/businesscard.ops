@@ -22,3 +22,34 @@
     - businesscard.dbs
     - businesscard.secrets
 
+
+
+- name: Service
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftWebConsole
+        labels:
+          app: businesscard
+        name: businesscard-service
+        namespace: "{{ openshift_namespace }}"
+      spec:
+        ports:
+          - name: 8080-tcp
+            port: 8080
+            protocol: TCP
+            targetPort: 8080
+        selector:
+          deploymentconfig: businesscard
+        sessionAffinity: None
+        type: ClusterIP
+  tags:
+    - all
+    - all_run
+    - businesscard.service
+
+
