@@ -181,3 +181,20 @@
     - businesscard.deploy
     - businesscard.deploy.force
     - businesscard.deploymentconfig
+
+
+
+- name: "Redeploy businesscard now"
+  shell:
+    cmd: "oc -n {{ openshift_namespace }} rollout latest dc/businesscard"
+  register: "_redeploy"
+  when: >
+    _businesscard_deploymentconfig is changed
+    or
+    "businesscard.deploy.force" in ansible_run_tags
+  failed_when: >
+    _redeploy.rc != 0 and "already in progress" not in _redeploy.stderr
+  tags:
+    - all
+    - all_run
+    - businesscard.deploy.force
