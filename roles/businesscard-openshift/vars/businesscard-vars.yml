@@ -6,6 +6,12 @@ _keybase_secrets_prod: >-
     {{ lookup('file', '/keybase/team/epfl_bsnscrd/secrets-prod.yml') | from_yaml }}
 _keybase_secrets_preprod: >-
     {{ lookup('file', '/keybase/team/epfl_bsnscrd/secrets-test.yml') | from_yaml }}
+
+businesscard_routes: >-
+  {{ ["businesscard.epfl.ch"] if inventory_environment == "prod"
+      else ["businesscard-preprod.epfl.ch", "businesscard-preprod.epfl.ch"] if inventory_environment == "test"
+      else "localhost" }}
+
 businesscard_base_image_pull_secret_name: github-package-common-libs-pull
 
 businesscard_git_repository: ssh://git@c4science.ch/diffusion/9003/businesscard.git

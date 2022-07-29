@@ -53,3 +53,34 @@
     - businesscard.service
 
 
+
+- name: Routes
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        labels:
+          app: businesscard
+        name: businesscard-route-{{ item }}
+        namespace: "{{ openshift_namespace }}"
+      spec:
+        host: "{{ item }}"
+        port:
+          targetPort: 8080-tcp
+        tls:
+          termination: edge
+        to:
+          kind: Service
+          name: businesscard-service
+          weight: 100
+        wildcardPolicy: None
+  with_items: "{{ businesscard_routes }}"
+
+  tags:
+    - all
+    - all_run
+    - businesscard.routes
+
+
