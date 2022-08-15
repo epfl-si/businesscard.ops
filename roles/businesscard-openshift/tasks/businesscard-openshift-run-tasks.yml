@@ -130,17 +130,14 @@
         namespace: "{{ openshift_namespace }}"
       spec:
         schedule: "* 5 1 * *"
-        concurrencyPolicy: "Replace"  
-        startingDeadlineSeconds: 200  
-        suspend: false                
+        concurrencyPolicy: "Replace"
+        startingDeadlineSeconds: 200
+        suspend: false
         successfulJobsHistoryLimit: 1
-        failedJobsHistoryLimit: 1     
-        jobTemplate:                  
+        failedJobsHistoryLimit: 1
+        jobTemplate:
           spec:
             template:
-              metadata:
-                labels:               
-                  parent: "cronjob_extractscript"
               spec:
                 containers:
                 - name: extractscript
