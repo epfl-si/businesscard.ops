@@ -7,6 +7,9 @@ _keybase_secrets_prod: >-
 _keybase_secrets_preprod: >-
     {{ lookup('file', '/keybase/team/epfl_bsnscrd/secrets-test.yml') | from_yaml }}
 
+keybase_businesscard_service_mail_account: >-
+    {{ lookup('file', '/keybase/team/epfl_bsnscrd/service.yml') | from_yaml }}
+
 businesscard_hostname: >-
   {{ "businesscard.epfl.ch" if inventory_environment == "prod"
       else "businesscard-preprod.epfl.ch" if inventory_environment == "test"

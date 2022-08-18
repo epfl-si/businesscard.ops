@@ -146,6 +146,10 @@
                   env:
                   - name: MAIL_SF
                     value: "{{ mail_SF }}"
+                  - name: SASL_USERNAME
+                    value: "{{ keybase_businesscard_service_mail_account.service }}"
+                  - name: SASL_PASSWORD
+                    value: "{{ keybase_businesscard_service_mail_account.password }}"
                   imagePullPolicy: Always
                   volumeMounts:
                   - name: businesscard-secrets
