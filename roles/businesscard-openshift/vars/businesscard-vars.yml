@@ -36,6 +36,9 @@ tequila_hostname: >-
   {{ "tequila.epfl.ch" if inventory_environment == "prod"
       else "test-tequila.epfl.ch" if inventory_environment == "test"
       else "localhost" }}
+tequila_environment: >-
+  {{ "prod" if inventory_environment == "prod"
+      else "test" if inventory_environment == "test" }}
 
 businesscard_image_name: businesscard
 businesscard_image_tag: >-

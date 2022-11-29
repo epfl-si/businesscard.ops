@@ -97,6 +97,7 @@
       data:
         SITE_URL: "{{ businesscard_hostname }}"
         TEQUILA_HOST: "{{ tequila_hostname }}"
+        TEQUILA_ENVIRONMENT: "{{ tequila_environment }}"
         BUSINESSCARD_ENVIRONMENT: "{{ inventory_environment }}"
   tags:
     - all
