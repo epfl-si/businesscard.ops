@@ -25,7 +25,7 @@ businesscard_base_image_pull_secret_name: github-package-common-libs-pull
 businesscard_git_repository: ssh://git@c4science.ch/diffusion/9003/businesscard.git
 # Note that the `master` branch contains a Dockerfile, but we don't
 # want to use it (until this one is merged):
-businesscard_git_branch: feature/build-from-ghcr-io
+businesscard_git_branch: master
 
 businesscard_vhost_dir: businesscard.epfl.ch
 
