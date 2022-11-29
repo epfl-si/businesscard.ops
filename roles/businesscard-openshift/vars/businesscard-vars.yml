@@ -16,8 +16,8 @@ businesscard_hostname: >-
       else "localhost" }}
 
 businesscard_routes: >-
-  {{ ["businesscard.epfl.ch"] if inventory_environment == "prod"
-      else ["businesscard-preprod.epfl.ch", "businesscard-preprod.epfl.ch"] if inventory_environment == "test"
+  {{ ["businesscard.epfl.ch", "businesscard.128.178.222.83.nip.io"] if inventory_environment == "prod"
+      else ["businesscard-preprod.epfl.ch", "test-businesscard.128.178.222.83.nip.io", "businesscard-test.epfl.ch"] if inventory_environment == "test"
       else "localhost" }}
 
 businesscard_base_image_pull_secret_name: github-package-common-libs-pull
