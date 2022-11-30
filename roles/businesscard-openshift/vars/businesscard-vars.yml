@@ -49,7 +49,7 @@ dinfo_build_cadi_libs_ssh_secret_key_path: "{{ _dinfo_build_keybase_dir }}/id_rs
 dinfo_build_cadi_libs_ssh_known_hosts_cmd: "ssh-keyscan c4science.ch"
 
 # List of SF mail adresses, separed by quotes
-_mail_SF: 'isabelle.chatton@epfl.ch,marc.fromentin@epfl.ch,barbara.scheuner@epfl.ch'
+_mail_SF: 'isabelle.chatton@epfl.ch,marc.fromentin@epfl.ch,barbara.scheuner@epfl.ch,businesscard-ops@groupes.epfl.ch'
 mail_SF: >-
   {{ _mail_SF if inventory_environment == "prod"
      else "jerome.cosandey@epfl.ch" if inventory_environment == "test" }}
