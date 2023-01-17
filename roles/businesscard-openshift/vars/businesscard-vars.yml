@@ -44,6 +44,13 @@ businesscard_image_name: businesscard
 businesscard_image_tag: >-
     {{ "prod" if inventory_environment == "prod" else "preprod" }}
 
+# Sends mail without processing order. Leave it empty if you don't need it.
+fake_mail_export: >-
+  {{ "" if inventory_environment == "prod"
+      else "" }}
+fake_month: >-
+  {{ "" if inventory_environment == "prod"
+      else "" }}
 cron_schedule: >-
   {{ "1 5 1 * *" if inventory_environment == "prod"
      else "" }}
