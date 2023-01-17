@@ -76,7 +76,7 @@ ansible_args=(-e "busible_dir=$OLDPWD")
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --prod)
-            inventory_mode="$inventory_mode prod"
+            inventory_mode="prod"
             shift ;;
         -m) mode=ansible
             ansible_args+=("-m")
