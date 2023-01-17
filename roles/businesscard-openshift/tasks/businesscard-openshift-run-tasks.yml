@@ -144,7 +144,7 @@
                 containers:
                 - name: extractscript
                   image: "docker-registry.default.svc:5000/{{ openshift_namespace }}/{{ businesscard_image_name }}:{{ businesscard_image_tag }}"
-                  entrypoint: ["perl", "/var/www/scripts/extract"]
+                  command: ["perl", "/var/www/scripts/extract"]
                   env:
                   - name: MAIL_SF
                     value: "{{ mail_SF }}"
