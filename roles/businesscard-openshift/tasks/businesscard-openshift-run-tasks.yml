@@ -100,6 +100,7 @@
         TEQUILA_ENVIRONMENT: "{{ tequila_environment }}"
         BUSINESSCARD_ENVIRONMENT: "{{ inventory_environment }}"
         MAIL_SF: "{{ mail_SF }}"
+        MAIL_REPRO: "{{ mail_repro }}"
   tags:
     - all
     - all_run
