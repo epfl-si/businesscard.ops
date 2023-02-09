@@ -33,11 +33,13 @@
   shell:
     cmd: |
       set -x
-      if oc get -o jsonpath='{.secrets}' serviceaccount/builder |grep "{{ businesscard_base_image_pull_secret_name }}"; then
+      if {{ _oc }} get -o jsonpath='{.secrets}' serviceaccount/builder |grep "{{ businesscard_base_image_pull_secret_name }}"; then
         echo "ALREADY_DONE"
         exit 0
       fi
-      oc secrets link builder {{ businesscard_base_image_pull_secret_name }}
+      {{ _oc }} secrets link builder {{ businesscard_base_image_pull_secret_name }}
+  vars:
+    _oc: oc -n "{{ openshift_namespace }}"
   register: _oc_secrets_link_cmd
   changed_when: >-
     (_oc_secrets_link_cmd is defined)
