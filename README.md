@@ -1,7 +1,7 @@
 # businesscard.ops
 
 This repositry regroups the configuration-as-code to provision, configure,
-deploy and manage the EPFL's Ticketsop app. It uses [Ansible] wrapped in a
+deploy and manage the EPFL's businesscard app. It uses [Ansible] wrapped in a
 convenient [suitcase], called [`busible`](./busible).
 
 
@@ -9,13 +9,13 @@ convenient [suitcase], called [`busible`](./busible).
 
 `./busible`
 
-1. Uses the «IDEV-FSD cadi base image» to build the businesscard image, checkouting the code from [c4science].
+1. Uses the [common-web] to build the businesscard image, checkouting the code from [github].
 1. Adds some secrets and config map, create a service, routes and a deployment config.
 1. If needed or asked, it will redeploy the pod.
 
 Detailled operations might look like:
 ```
-./busible -vvv -t businesscard.checkouter,businesscard.is,businesscard.build
+./busible -vvv -t businesscard.is,businesscard.build
 $ oc logs -f bc/businesscard --version=NN -n businesscard-test
 ./busible -vvv -t businesscard.promote --prod
 ./busible -vvv -t businesscard.secrets,businesscard.routes,businesscard.service,businesscard.cm,businesscard.dc --prod
@@ -38,7 +38,6 @@ $ oc logs -f bc/businesscard --version=NN -n businesscard-test
 |Config Map                        | `businesscard.config`<br>`businesscard.cm`                                    |
 |Deployment Config                 | `businesscard.dc`<br>`businesscard.deploy`<br>`businesscard.deploymentconfig` |
 |Redeploy                          | `businesscard.deploy.force`                                                   |
-|`idevfsd-checkouter` secret (ssh) | `businesscard.checkouter`                                                     |
 |Build image                       | `businesscard.is`<br>`businesscard.image`<br>`businesscard.imagestream`       |
 |Rebuild now                       | `businesscard.build`                                                          |
 |Promote                           | `businesscard.promote`                                                        |
@@ -47,7 +46,8 @@ $ oc logs -f bc/businesscard --version=NN -n businesscard-test
 
 [Ansible]: https://www.ansible.com (Ansible is Simple IT Automation)
 [suitcase]: https://github.com/epfl-si/ansible.suitcase (Install Ansible and its dependency stack into a temporary directory)
-[c4science]: https://c4science.ch/diffusion/3794/history/dev/
+[github]: https://github.com/epfl-si/businesscard
 [Keybase]: https://keybase.io
 [OpenShift]: https://openshift.com
+[common-web]: https://github.com/epfl-si/common-web
 [//]: # "comment"

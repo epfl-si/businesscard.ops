@@ -1,35 +1,3 @@
-# Add the SSH key for idevfsd-checkouter, used to git clone the project
-- name: "`idevfsd-checkouter` secret (ssh key pair)"
-  openshift:
-    state: latest
-    apiVersion: v1
-    kind: Secret
-    metadata:
-      name: idevfsd-checkouter
-      namespace: '{{ openshift_namespace }}'
-      annotations:
-        openshift.io/description: Add the SSH key for idevfsd-checkouter, used to git clone the project
-    type: kubernetes.io/ssh-auth
-    data:
-      ssh-privatekey: '{{ _id_rsa | base64 }}'
-      id_rsa: '{{ _id_rsa | base64 }}'
-      known_hosts: '{{ _known_hosts | base64 }}'
-  vars:
-    # Be sure that `_id_rsa` ends with a newline, lest OpenShift silently fail
-    # to use it!
-    _id_rsa: |
-      {{ lookup("file", "{{ dinfo_build_cadi_libs_ssh_secret_key_path }}") }}
-
-    _known_hosts: '{{ lookup("pipe", "{{ dinfo_build_cadi_libs_ssh_known_hosts_cmd }} 2>/dev/null | sort") }}'
-  when:
-    - >-
-      businesscard_build_openshift_namespace == openshift_namespace
-  tags:
-    - all
-    - all_build
-    - businesscard.checkouter
-    - businesscard.secrets
-
 - name: "`{{ businesscard_base_image_pull_secret_name }}` Secret"
   openshift:
     apiVersion: v1
@@ -95,16 +63,6 @@
       git:
         uri: "{{ businesscard_git_repository }}"
         ref: "{{ businesscard_git_branch }}"
-      sourceSecret:
-        name: idevfsd-checkouter
-    strategy:
-      dockerStrategy:
-        # Squash the image, so that it doesn't contain the
-        # idevfsd-checkouter ssh key in its intermediate layers:
-        imageOptimizationPolicy: SkipLayers
-        # Pulling from ghcr.io requires a credential (see above):
-        pullSecret:
-          name: "{{ businesscard_base_image_pull_secret_name }}"
     tag: "{{ businesscard_image_tag }}"
   register: _businesscard_imagestream
   when:
