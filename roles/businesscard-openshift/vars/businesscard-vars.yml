@@ -42,7 +42,7 @@ tequila_environment: >-
 
 businesscard_image_name: businesscard
 businesscard_image_tag: >-
-    {{ "prod" if inventory_environment == "prod" else "develop" }}
+    {{ "prod" if inventory_environment == "prod" else "preprod" }}
 
 # List of SF mail adresses, separed by quotes
 _mail_SF: 'isabelle.chatton@epfl.ch,marc.fromentin@epfl.ch,barbara.scheuner@epfl.ch,businesscard-ops@groupes.epfl.ch'
