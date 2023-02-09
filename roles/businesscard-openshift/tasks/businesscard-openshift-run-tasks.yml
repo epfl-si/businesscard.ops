@@ -99,6 +99,7 @@
         TEQUILA_HOST: "{{ tequila_hostname }}"
         TEQUILA_ENVIRONMENT: "{{ tequila_environment }}"
         BUSINESSCARD_ENVIRONMENT: "{{ inventory_environment }}"
+        MAIL_SF: "{{ mail_SF }}"
   tags:
     - all
     - all_run
