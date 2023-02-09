@@ -45,6 +45,7 @@
     (_oc_secrets_link_cmd is defined)
     and
     ("ALREADY_DONE" not in _oc_secrets_link_cmd.stdout)
+  when: businesscard_build_openshift_namespace == openshift_namespace
   tags:
     - all
     - all_build
