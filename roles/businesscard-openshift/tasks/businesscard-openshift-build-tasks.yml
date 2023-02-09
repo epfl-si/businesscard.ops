@@ -11,7 +11,7 @@
         {{ _docker_config | to_json | b64encode | trim }}
   vars:
     _username: epfl-si  # This is actually ignored by GitHub
-    _password: "{{ keybase_secrets.common_libs_github_registry_token }}"
+    _password: "{{ keybase_secrets.common_web_github_registry_token }}"
     _email: isas-fsd@groupes.epfl.ch
     # Reverse engineered from reading the Secret created with the instructions
     # from https://docs.openshift.com/container-platform/3.11/dev_guide/managing_images.html#allowing-pods-to-reference-images-from-other-secured-registries
@@ -23,6 +23,7 @@
           email: "{{ _email }}"
           auth: >-
             {{ ("%s:%s" % (_username, _password)) | b64encode }}
+  when: businesscard_build_openshift_namespace == openshift_namespace
   tags:
     - all
     - all_build
