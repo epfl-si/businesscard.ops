@@ -27,7 +27,7 @@ businesscard_git_repository: https://github.com/epfl-si/businesscard.git
 # want to use it (until this one is merged):
 businesscard_git_branch: master
 
-businesscard_vhost_dir: businesscard.epfl.ch
+businesscard_vhost_dir: app
 
 # Note: we only build in test...
 businesscard_build_openshift_namespace: "businesscard-test"
