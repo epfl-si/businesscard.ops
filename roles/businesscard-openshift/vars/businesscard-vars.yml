@@ -22,7 +22,7 @@ businesscard_routes: >-
 
 businesscard_base_image_pull_secret_name: github-package-common-web-token
 
-businesscard_git_repository: ssh://git@github.com/epfl-si/businesscard.git
+businesscard_git_repository: https://github.com/epfl-si/businesscard.git
 # Note that the `master` branch contains a Dockerfile, but we don't
 # want to use it (until this one is merged):
 businesscard_git_branch: master
