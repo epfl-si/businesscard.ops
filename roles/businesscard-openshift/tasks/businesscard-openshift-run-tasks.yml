@@ -25,7 +25,7 @@
 
 
 - name: Service
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1
@@ -55,7 +55,7 @@
 
 
 - name: Routes
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: route.openshift.io/v1
@@ -86,7 +86,7 @@
 
 
 - name: Config Map
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1
@@ -121,7 +121,7 @@
 
 
 - name: "Cronjob for sending mail at {{ mail_SF }}"
-  community.kubernetes.k8s:
+  kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: batch/v1beta1
