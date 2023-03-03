@@ -101,6 +101,7 @@
         BUSINESSCARD_ENVIRONMENT: "{{ inventory_environment }}"
         MAIL_SF: "{{ mail_SF }}"
         MAIL_REPRO: "{{ mail_repro }}"
+        # SCIPER_IMPERSONATION: "290361"
   tags:
     - all
     - all_run
