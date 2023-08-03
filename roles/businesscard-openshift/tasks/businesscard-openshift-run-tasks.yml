@@ -167,6 +167,71 @@
     - all_run
     - businesscard.cronjob
 
+
+- name: "Testing extract job (with mail at {{ mail_SF }})"
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: extractscript
+        namespace: "{{ openshift_namespace }}"
+      spec:
+        parallelism: 1
+        completions: 1
+        activeDeadlineSeconds: 180 
+        backoffLimit: 5
+        template:
+          spec:
+            containers:
+            - name: extractscript
+              image: "docker-registry.default.svc:5000/{{ openshift_namespace }}/{{ businesscard_image_name }}:{{ businesscard_image_tag }}"
+              entrypoint: ["perl", "/var/www/scripts/extract"]
+              env:
+              # The export script will be in debug mode if set
+              - name: FAKE_MAIL_EXPORT
+                value: businesscard-ops+test@groupes.epfl.ch
+
+              # Either define the FAKE_MONTH (0-11)...
+              # - name: FAKE_MONTH
+              #   value: ""
+              # or both the BEGIN_DATE and the END_DATE for export
+              - name: BEGIN_DATE
+                value: "2023-01-01 00:00:00"
+              - name: END_DATE
+                value: "2023-12-31 23:59:59"
+
+              # Authenticated email username and password
+              - name: SASL_USERNAME
+                value: "{{ keybase_businesscard_service_mail_account.service }}"
+              - name: SASL_PASSWORD
+                value: "{{ keybase_businesscard_service_mail_account.password }}"
+              # The recipient of the mail, rewwritten by FAKE_MAIL_EXPORT
+              - name: MAIL_SF
+                value: ""
+              # These are not used by the extract script but present in the Apache's pass_env
+              - name: MAIL_REPRO
+                value: ""
+              - name: TEQUILA_HOST
+                value: ""
+              - name: TEQUILA_ENVIRONMENT
+                value: ""
+
+              imagePullPolicy: Always
+              volumeMounts:
+              - name: businesscard-secrets
+                mountPath: /opt/dinfo/etc/dbs.conf
+                subPath: dbs.conf
+            volumes:
+            - name: businesscard-secrets
+              secret:
+                secretName: businesscard-secrets
+            restartPolicy: Never
+  tags:
+    - testjob
+
+
 # https://docs.openshift.com/container-platform/3.11/dev_guide/deployments/how_deployments_work.html#creating-a-deployment-configuration
 - name: Deployment Config
   openshift:
