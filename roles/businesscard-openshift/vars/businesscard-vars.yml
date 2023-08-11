@@ -45,7 +45,7 @@ businesscard_image_tag: >-
     {{ "prod" if inventory_environment == "prod" else "preprod" }}
 
 # List of SF mail adresses, separed by quotes
-_mail_SF: 'isabelle.chatton@epfl.ch,marc.fromentin@epfl.ch,barbara.scheuner@epfl.ch,businesscard-ops@groupes.epfl.ch'
+_mail_SF: 'thomas.reynaud@epfl.ch,patrick.jousson@epfl.ch,carinne.christinaz@epfl.ch,businesscard-ops@groupes.epfl.ch'
 mail_SF: >-
   {{ _mail_SF if inventory_environment == "prod"
      else "businesscard-ops@groupes.epfl.ch" if inventory_environment == "test" }}
