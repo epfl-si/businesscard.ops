@@ -1,16 +1,21 @@
-- include_vars: businesscard-vars.yml
-  tags: always
-
-- include_tasks:
-    file: businesscard-openshift-build-tasks.yml
+- name: "Businesscard - Image"
+  when:
+    - inventory_environment == "test"
+  include_tasks:
+    file: image.yml
     apply:
       tags:
-        - businesscard.openshift-build
-  tags: always
+        - image
+  tags:
+    - image
+    - image.startbuild
 
-- include_tasks:
-    file: businesscard-openshift-run-tasks.yml
+- name: "Businesscard - App"
+  include_tasks:
+    file: app.yml
     apply:
       tags:
-        - businesscard.openshift-run
-  tags: always
+        - app
+  tags: 
+    - app
+    - app.restart
