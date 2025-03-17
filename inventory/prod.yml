@@ -1,7 +1,7 @@
 all:
   hosts:
     openshift-prod:
-      openshift_namespace: businesscard-prod
+      openshift_namespace: svc0077p-businesscard
       ansible_connection: local
-      ansible_python_interpreter: "{{ busible_dir }}/ansible-deps-cache/bin/python3"
+      ansible_python_interpreter: "{{ busible_suitcase_dir }}/bin/python3"
       inventory_environment: prod
