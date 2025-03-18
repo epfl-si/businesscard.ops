@@ -222,5 +222,5 @@
         template:
           metadata:
             annotations:
-              last-restart: '{{ ansible_date_time.iso8601 }}'
+              last-restart: "{{ lookup('pipe', 'date -u +%Y-%m-%dT%H:%M:%SZ') }}"
   tags: app.restart
