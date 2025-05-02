@@ -133,7 +133,7 @@
                   - containerPort: 8080
                 resources:
                   requests:
-                    cpu: "500m"
+                    cpu: "100m"
                     memory: "1Gi"
                 envFrom:
                   - configMapRef:
