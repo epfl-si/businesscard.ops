@@ -133,8 +133,10 @@
                   - containerPort: 8080
                 resources:
                   requests:
-                    cpu: "100m"
-                    memory: "1Gi"
+                    cpu: "10m"
+                    memory: "256Mi"
+                  limits:
+                    memory: "256Mi"
                 envFrom:
                   - configMapRef:
                       name: businesscard-conf
@@ -188,8 +190,10 @@
                     command: ["perl", "/var/www/scripts/extract"]
                     resources:
                       requests:
-                        cpu: "500m"
-                        memory: "1Gi"
+                        cpu: "100m"
+                        memory: "256Mi"
+                      limits:
+                        memory: "256Mi"
                     env:
                       - name: MAIL_SF
                         value: "{{ mail_SF }}"
